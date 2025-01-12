@@ -1,0 +1,40 @@
+{
+    "name": "taiyaki",
+    "description": "stop phishing sites with taiyaki!",
+    "version": "1.0",
+    "manifest_version": 3,
+    "icons": {
+      "16": "img/icon16.png",
+      "48": "img/icon48.png",
+      "128": "img/icon128.png"
+    },
+    "action": {
+      "default_title": "taiyaki",
+      "default_popup": "taiyaki_profile.html"
+    },
+    "permissions": ["activeTab", "tabs", "storage", "declarativeNetRequestWithHostAccess", "declarativeNetRequest" ],
+    "background": {
+      "service_worker": "scripts/background.js"
+    },
+    "content_scripts": [
+      {
+        "js": ["content.js"],
+        "matches": [
+            "https://*/*",
+            "http://*/*"
+        ]
+      }
+    ],
+    "host_permissions": [
+      "https://*/*",
+      "http://*/*"
+    ],
+    "web_accessible_resources": [
+    {
+      "resources": ["img/dead48.png"],
+      "matches": [
+        "https://*/*",
+        "http://*/*"]
+    }
+    ]
+  }
