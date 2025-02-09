@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       background: white; 
       color: black; 
       text-align: center; 
-      z-index: 9999;  
+      z-index: 2147483647;  
       padding: 10px; 
       font-size: 16px;
       border-bottom: 2px solid black; /* Border only at the bottom */
@@ -28,7 +28,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     
     // Create Text Element
     const bannerText = document.createElement("span");
-    bannerText.textContent = message.message;
+    bannerText.id = "phishing-warning-banner";
+    bannerText.innerHTML = message.message;
     
     // Append Image & Text to Banner
     warningBanner.appendChild(bannerImage);
@@ -36,16 +37,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     
     // Add Banner to Page
     document.body.prepend(warningBanner);
-    
 
     document.addEventListener("click", function(event) {
-      event.preventDefault();
-      event.stopPropagation();
-      return false;
+      const isInsideBanner = document.activeElement.closest("#phishing-warning-banner");
+      console.log(isInsideBanner);
+      if(!isInsideBanner) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
     }, true);
     
     document.addEventListener("keydown", function(event) {
-      if (event.key === "Enter") {
+      const isInsideBanner = document.activeElement.closest("#phishing-warning-banner");
+      if (!isInsideBanner && event.key === "Enter") {
           event.preventDefault();
           event.stopPropagation();
           return false;

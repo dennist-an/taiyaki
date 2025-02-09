@@ -124,14 +124,14 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         .filter(result => result.violation);
 
     /* Iterate through the violation */
-    // violations.forEach(violation => {
-    //     if (violation.violation.hasOwnProperty("isViolated")) {
-    //         console.log("Violation Detected:", violation.violation.isViolated);
-    //     } else {
-    //         console.log("isRecognised:", violation.violation.isRecognised);
-    //         console.log("isWhiteListed:", violation.violation.isWhiteListed);
-    //     }
-    // });
+    violations.forEach(violation => {
+        if (violation.violation.hasOwnProperty("isViolated")) {
+            console.log("Violation Detected:", violation.violation.isViolated);
+        } else {
+            console.log("isRecognised:", violation.violation.isRecognised);
+            console.log("isWhiteListed:", violation.violation.isWhiteListed);
+        }
+    });
 
     hasViolation = violations.some(v => {
         // Handle `isRecognised` (TLD Check)
@@ -152,16 +152,39 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                     console.error("Invalid API response format.");
                     return;
                 }
-
-                // Remove "www." if it exists in the hostname
-                const cleanHostname = hostname.startsWith("www.") ? hostname.substring(4) : hostname
+                
                 // Search for the hostname in the list of domains
-                if (!data.domains.find(item => item.domainname.toLowerCase() === cleanHostname.toLowerCase() && item.indexed === true)) {
+                if (!data.domains.find(item => item.domainname.toLowerCase() === hostname.toLowerCase() && item.indexed === true)) {
                     chrome.action.setBadgeText({ text: `0`, tabId });
                     chrome.action.setBadgeBackgroundColor({ color: "red", tabId });
                     chrome.tabs.sendMessage(tabId, {
                         action: "warn_user",
-                        message: " this website is not approved, all clicks have been disabled."
+                        message: ` this website is not approved, all actions has been disabled. <a href="https://nrpboxnv6vwrbkelfndmnm5mrm0qhlgh.lambda-url.ap-southeast-1.on.aws/lookup?domainName=${encodeURIComponent(hostname)}" id="inDepthCheckLink"><u>Click here</u></a> to run an in-depth check.`
+                    });
+                    // Add event listener for the link click to send the request without redirecting
+                    chrome.scripting.executeScript({
+                        target: { tabId },
+                        func: () => {
+                            // Add event listener to the link click
+                            document.getElementById('inDepthCheckLink').addEventListener('click', function(event) {
+                                // Prevent the default link redirection
+                                event.preventDefault();
+                
+                                // Send the request in the background (no redirect)
+                                fetch(this.href)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        console.log('In-depth check completed:', data);
+                                        // Optionally, you can do something with the response data here
+                                    })
+                                    .catch(error => {
+                                        console.error('Error with in-depth check:', error);
+                                    });
+                
+                                // Reload the current page
+                                window.location.reload();
+                            });
+                        }
                     });
                 }
             })

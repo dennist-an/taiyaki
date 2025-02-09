@@ -12,7 +12,7 @@
       "default_title": "taiyaki",
       "default_popup": "taiyaki_profile.html"
     },
-    "permissions": ["activeTab", "tabs", "storage", "declarativeNetRequestWithHostAccess", "declarativeNetRequest" ],
+    "permissions": ["activeTab", "tabs", "storage", "declarativeNetRequestWithHostAccess", "declarativeNetRequest", "scripting" ],
     "background": {
       "service_worker": "scripts/background.js"
     },
